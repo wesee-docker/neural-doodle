@@ -4,27 +4,40 @@ FROM ubuntu:14.04
 RUN apt-get -qq update           &&  \
     apt-get -qq install --assume-yes \
         "build-essential"           \
+        "cmake"                     \
         "git"                       \
         "wget"                      \
-        "pkg-config"             &&  \
-    rm -rf /var/lib/apt/lists/*
-
-# Miniconda.
-RUN wget --quiet https://repo.continuum.io/miniconda/Miniconda3-4.0.5-Linux-x86_64.sh -O ~/miniconda.sh && \
-    /bin/bash ~/miniconda.sh -b -p /opt/conda && \
-    rm ~/miniconda.sh
+        "libopenjpeg2"              \
+        "libopenblas-dev"           \
+        "liblapack-dev"             \
+        "libjpeg-dev"               \
+        "libtiff5-dev"              \
+        "zlib1g-dev"                \
+        "libfreetype6-dev"          \
+        "liblcms2-dev"              \
+        "libwebp-dev"               \
+        "gfortran"                  \
+        "pkg-config"                \
+        "python3"                   \
+        "python3-dev"               \
+        "python3-pip"               \
+        "python3-numpy"             \
+        "python3-scipy"             \
+        "python3-six"               \
+        "python3-networkx"       &&  \
+    rm -rf /var/lib/apt/lists/*  &&  \
+    python3 -m pip install "cython"
 
 # Install requirements before copying project files
 WORKDIR /nd
 COPY requirements.txt .
-RUN /opt/conda/bin/conda install -q -y conda numpy llvmlite numba pip scikit-learn pillow
-RUN /opt/conda/bin/python3 -m pip install -q -r "requirements.txt"
+RUN python3 -m pip install -r "requirements.txt"
 
 # Copy only required project files
 COPY doodle.py .
 
-# Get a pre-trained neural network, non-commercial & attribution. (GELU2)
-RUN wget -q "https://github.com/alexjc/neural-doodle/releases/download/v0.0/geln3_conv.pkl"
+# Get a pre-trained neural network (VGG19)
+RUN wget -q "https://github.com/alexjc/neural-doodle/releases/download/v0.0/vgg19_conv.pkl.bz2"
 
 # Set an entrypoint to the main doodle.py script
-ENTRYPOINT ["/opt/conda/bin/python3", "doodle.py", "--device=cpu"]
+ENTRYPOINT ["python3", "doodle.py", "--device=cpu"]
