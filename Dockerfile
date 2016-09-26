@@ -1,1 +1,1 @@
-FROM alexjc/neural-doodle
+FROM alexjc/neural-doodle:gpu
